@@ -1,4 +1,4 @@
-# Automacao-leitura-nota-fiscal
+# Reading invoices
 
 This is a project to automate invoice reading. 
 
