@@ -5,6 +5,7 @@ from pathlib import Path
 from uuid import uuid4
 from dotenv.main import load_dotenv
 import os
+import re
 
 # Authentication in Telegram API and Google Vision
 
@@ -32,8 +33,20 @@ def detect_text(path):
     texts = response.text_annotations
     print('Texts:')
 
-    for text in texts:     #Definir uma expressãor regular para encontrar o numer(será que vai vir bloquinhos?)
+    for text in texts:     
         print('\n"{}"'.format(text.description))
+        reg_pattern =  '\d{44}|(\d{4}\s){11}'
+        texto_encontrado = re.search(reg_pattern, text.description)
+
+        if texto_encontrado != None:
+            invoice_no = texto_encontrado.group()
+            bot_return_message = f'Invoice number founded {invoice_no}'
+            break
+        else:
+            bot_return_message = "Invoice number was not founded"
+    
+    print(bot_return_message)
+    return bot_return_message
 
         #vertices = (['({},{})'.format(vertex.x, vertex.y)
                     #for vertex in text.bounding_poly.vertices])
@@ -56,9 +69,10 @@ async def invoice_received(update: Update, context: ContextTypes.DEFAULT_TYPE) -
    file_name = "Invoice_" + str(unique_id) + ".jpg"    # sugestão marcação timestamp
    current_path = Path(Path("main.py").parent, "Documents", file_name) # ajustar de acordo com teste.py
    await new_photo.download_to_drive(custom_path=current_path)
-   await context.bot.send_message(chat_id=update.effective_chat.id, text="We receive your Invoice and its going to be processed")
-   detect_text(path=current_path)
- 
+   await context.bot.send_message(chat_id=update.effective_chat.id, text="We receive your document and its going to be processed")
+   bot_return_message = detect_text(path=current_path) # Formatar melhor a mensagem de saida
+   await context.bot.send_message(chat_id=update.effective_chat.id, text=bot_return_message)
+
 
 if __name__ == '__main__':
     application = ApplicationBuilder().token(os.getenv('TELEGRAM_BOT_TOKEN')).build()
