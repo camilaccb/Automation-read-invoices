@@ -15,3 +15,9 @@ print(texto_encontrado.group())
 # (\d{4}\s){11}
 # \d{44}
 #\d{44}|(\d{4}\s){11}
+
+
+
+
+
+
