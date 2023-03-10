@@ -48,6 +48,9 @@ async def invoice_processing(update: Update, context: ContextTypes.DEFAULT_TYPE)
    # Send downloaded image to cloud storage
    gcs_path = upload_blob(bucket_name="invoice-reader-documents",source_file_name=local_path,destination_blob_name=file_name)
 
+   # Delete file from local folder
+   os.remove(path=local_path)
+
    # Extract invoice number from image in storage bucket
    invoice_no = detect_text_uri(uri=gcs_path)
    
