@@ -5,18 +5,20 @@ Author: Camila Caldas - 03/2023
 """
 
 import logging
-from telegram import Update
-from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, MessageHandler, filters
-from pathlib import Path
 from uuid import uuid4
-from dotenv.main import load_dotenv
+from telegram import Update
 from datetime import datetime
 import os
+from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, MessageHandler, filters
+from pathlib import Path
+from dotenv.main import load_dotenv
 from gcp import upload_blob, detect_text_uri, upload_data_bigquery
 
 
-# Google authentication using a service account file
+# Get credentials for telegram API authentication (storage in a .env file)
 load_dotenv('.env')
+
+# Google authentication using a service account file
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "ServiceAccountToken.json"
 
 # Set up logs
@@ -32,9 +34,9 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     first_response_text= f"Hi {User_first_name}, I'm a bot, please send your invoice!"
     await context.bot.send_message(chat_id=update.effective_chat.id, text=first_response_text)
 
+
 # Document processing after upload in telegram
 async def invoice_processing(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-   
    # Inform user that document is going to be processed 
    User_first_name = update.effective_chat.first_name
    await context.bot.send_message(chat_id=update.effective_chat.id, text=f"{User_first_name}, we receive your document and its going to be processed")
@@ -63,13 +65,13 @@ async def invoice_processing(update: Update, context: ContextTypes.DEFAULT_TYPE)
    upload_data_bigquery(invoice_number=invoice_no,extraction_date=extraction_datetime,file_name=file_name,requester=User_full_name) 
 
    #Return document processing results to user   
-   if invoice_no !=None:
-    bot_return_message = "Invoice number founded"
-    await context.bot.send_message(chat_id=update.effective_chat.id, text=bot_return_message)
-    await context.bot.send_message(chat_id=update.effective_chat.id, text=invoice_no)
+   if invoice_no != "":
+       bot_return_message = "Invoice number founded"
+       await context.bot.send_message(chat_id=update.effective_chat.id, text=bot_return_message)
+       await context.bot.send_message(chat_id=update.effective_chat.id, text=invoice_no)
    else:
-    bot_return_message = "Invoice number not founded"
-    await context.bot.send_message(chat_id=update.effective_chat.id, text=bot_return_message)
+       bot_return_message = "Invoice number not founded"
+       await context.bot.send_message(chat_id=update.effective_chat.id, text=bot_return_message)
 
 
 if __name__ == '__main__':
@@ -82,7 +84,13 @@ if __name__ == '__main__':
     #Process document
     receive_documents_handler = MessageHandler(filters.PHOTO, invoice_processing)
     application.add_handler(receive_documents_handler) 
+
+    #Input extraction result in app 
+
     
+    #Return process result to user
+    
+
     # Run the bot until the user presses Ctrl+C
     application.run_polling()
   

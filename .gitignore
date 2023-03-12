@@ -2,3 +2,4 @@
 *.env
 ServiceAccountToken.json
 Documents/
+Documents_test/

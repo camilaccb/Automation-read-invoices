@@ -8,9 +8,11 @@
 """
 
 import re
+import io
 from google.cloud import storage
 from google.cloud import vision
 from google.cloud import bigquery
+
 
 def upload_blob(bucket_name:str, source_file_name:str, destination_blob_name:str) -> str:
     """ Uploads a file to the bucket
@@ -46,30 +48,41 @@ def upload_blob(bucket_name:str, source_file_name:str, destination_blob_name:str
     gcs_path = f"gs://{bucket_name}/{destination_blob_name}"
     return gcs_path
 
+
 def detect_text_uri(uri:str) -> str:
     """Detects text in the file located in Google Cloud Storage"""
     client = vision.ImageAnnotatorClient()
     image = vision.Image()
     image.source.image_uri = uri
 
+    #response = client.text_detection(image=image)
     response = client.text_detection(image=image)
-    texts = response.text_annotations
-    print('Texts:')
-
-    # For each text extracted apply the regex rule and try to find the invoice number 
-    for text in texts:
-        print('\n"{}"'.format(text.description))
-        
-        #Apply regex rule in the text extracted to found invoice number
-        reg_pattern =  '\d{44}|(\d{4}\s){11}'
-        text_found = re.search(reg_pattern, text.description)
-
-        # Stop after found the text
-        if text_found != None:
-            invoice_no = text_found.group().replace(" ", "")
-            break
     
-    print(invoice_no)
+    # List with extracted data
+    texts = response.text_annotations
+
+    #The first element of the list contain full text in description, so its going to be used
+    full_extracted_text_list = texts[0].description
+
+    #Before apply regex rule write text in a txt file in the same folder of documents
+    with io.open('Documents/Extraction.txt','w',encoding="utf-8") as extracted_data:
+        extracted_data.write(full_extracted_text_list)
+        #extracted_data.write(str(texts))
+
+    #Read full extracted data in txt file
+    with io.open('Documents/Extraction.txt','r', encoding="utf-8") as extracted_data:
+        full_extracted_text_list_str = extracted_data.read()
+
+    #Apply regex rule in the text extracted to found invoice number
+    regex_pattern =  '\d{44}|(?<!.)(\d{1,4}\s){10}\d{1,4}'
+    text_found = re.search(regex_pattern, full_extracted_text_list_str)
+        
+    #If text was extracted and has 44 digits it can be identified as an invoice
+    if text_found != None and len(text_found.group().replace(" ", "")) == 44:
+        #Remove blank spaces between numbers
+        invoice_no = text_found.group().replace(" ", "")
+    else:
+        invoice_no = ""
 
     if response.error.message:
         raise Exception(
@@ -77,6 +90,8 @@ def detect_text_uri(uri:str) -> str:
             'https://cloud.google.com/apis/design/errors'.format(
                 response.error.message))
     
+    print(invoice_no)
+    print(len(invoice_no))
     return invoice_no 
 
 def upload_data_bigquery(invoice_number:str, extraction_date:str, file_name:str, requester:str):
