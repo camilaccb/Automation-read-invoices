@@ -21,6 +21,5 @@ Quite often the scan feature is not able to recognize the number of invoice and 
 
 ### Proposal
 
-Create a solution using python to automate invoice reading making possible to input in the app automatically
-
+Create a solution using python to automate invoice reading making possible to input its number in the app
 
