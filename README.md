@@ -6,7 +6,7 @@ This is a project to automate invoice reading.
 
 There is a government program ("Sua Nota tem Valor") created to make everyone aware of the importance of demanding invoices or receipts, as well as to encourage participation in social control and the application of public resources. More information about program [here.](https://suanotatemvalor.sefaz.ce.gov.br/oprograma/)
 
-To join the program and you have to input your invoices into an app. The way you can do it is using a scan feature availabe in app. 
+To join the program you have to input your invoices into an app. The way you can do it is using a scan feature availabe in app. 
 
 ### Problem
 
