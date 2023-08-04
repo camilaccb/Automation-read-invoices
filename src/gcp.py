@@ -74,6 +74,14 @@ def detect_text_uri(uri:str) -> str:
         full_extracted_text_list_str = extracted_data.read()
 
     #Apply regex rule in the text extracted to found invoice number
+        '''
+          A expressão regex garante que os 2 formatos a seguir são válidos
+        
+          1 único grupo de 44 números: 23230314819242000116592301996250562760444952
+          11 grupos de quatro número separados por um espaço: 2323 0314 8192 4200 0116 5923 0199 6250 5627 6044 4952
+
+        '''
+
     regex_pattern =  '\d{44}|(?<!.)(\d{1,4}\s){10}\d{1,4}'
     text_found = re.search(regex_pattern, full_extracted_text_list_str)
         

@@ -1,4 +1,4 @@
-""" Process a invoice uploaded in telegram, input extracted data in the system ("Sua Nota tem valor" app) and return execution status to requester
+""" Process a invoice uploaded in telegram and return the number extracted
 
 Author: Camila Caldas - 03/2023
 
@@ -84,12 +84,6 @@ if __name__ == '__main__':
     #Process document
     receive_documents_handler = MessageHandler(filters.PHOTO, invoice_processing)
     application.add_handler(receive_documents_handler) 
-
-    #Input extraction result in app 
-
-    
-    #Return process result to user
-    
 
     # Run the bot until the user presses Ctrl+C
     application.run_polling()
